@@ -885,7 +885,7 @@ class Elf32:
         end_of_file += len(headers[end_of_file])
 
         # create and populate buffer
-        b = bytes(end_of_file)
+        b = bytes()
         for off in headers:
             # TODO: there's something wrong, when hdr is not bytes, but only
             # simulates it
@@ -898,12 +898,9 @@ class Elf32:
             else:
                 hdr = bytes(hdr)
             size = len(hdr)
+            b = b + hdr
 
-            # expand to file size
-            aligned = align(bytes(off) + hdr, end_of_file)
-
-            # xor into b
-            b = makeelf.utils.bytes_xor(b, aligned)
+        b = align(b, end_of_file)
         return b
 
     ##

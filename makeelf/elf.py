@@ -201,7 +201,12 @@ class ELF:
                 Shdr_len += len(Shdr)
             self.Elf.Ehdr.e_shoff = cursor
             self.Elf.Ehdr.e_shentsize = len(self.Elf.Shdr_table[0])
-            self.Elf.Ehdr.e_shnum = len(self.Elf.Shdr_table)
+            if len(self.Elf.Shdr_table) >= 0xffff:
+                self.Elf.Ehdr.e_shstrndx = 0xffff
+                self.Elf.Ehdr.e_shnum = 0
+                self.Elf.Shdr_table[0].sh_size = len(self.Elf.Shdr_table)
+                self.Elf.Shdr_table[0].sh_link = 1
+                self.Elf.Shdr_table[0].sh_info = len(self.Elf.Phdr_table)
             cursor += Shdr_len
         else:
             self.Elf.Ehdr.e_shoff = 0
@@ -210,6 +215,8 @@ class ELF:
 
         # update section offsets in section headers
         for i, Shdr in enumerate(self.Elf.Shdr_table):
+            if i == 0:
+                continue
             section_len = len(self.Elf.sections[i])
             Shdr.sh_offset = cursor
             Shdr.sh_size = section_len
@@ -291,7 +298,7 @@ class ELF:
         ret = len(self.Elf.Shdr_table)
 
         # check header - blob consistency
-        if len(self.Elf.sections) is not ret:
+        if len(self.Elf.sections) != ret:
             raise Exception('section header list and section list are '\
                     'inconsistent. Automatic section appending impossible')
 
