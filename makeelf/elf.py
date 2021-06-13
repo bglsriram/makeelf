@@ -201,6 +201,7 @@ class ELF:
                 Shdr_len += len(Shdr)
             self.Elf.Ehdr.e_shoff = cursor
             self.Elf.Ehdr.e_shentsize = len(self.Elf.Shdr_table[0])
+            self.Elf.Ehdr.e_shnum = len(self.Elf.Shdr_table)
             if len(self.Elf.Shdr_table) > 0xffff:
                 self.Elf.Ehdr.e_shstrndx = 0xffff
                 self.Elf.Ehdr.e_shnum = 0
